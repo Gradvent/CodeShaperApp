@@ -1,0 +1,39 @@
+version: "3.8"
+services: 
+    web:
+        build: ./web
+        environment: 
+            - APACHE_RUN_USER=#1000
+        volumes: 
+            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+        ports: 
+            - 8080:80
+        working_dir: ${APP_PATH_CONTAINER}
+    composer:
+        image: composer
+        volumes: 
+            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+        working_dir: ${APP_PATH_CONTAINER}
+        command: composer install
+    nodejs:
+        build: 
+            context: ./web
+            dockerfile: Node.Dockerfile
+            args: 
+                TARGET_PATH: ${APP_PATH_CONTAINER}
+        volumes: 
+            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+        working_dir: ${APP_PATH_CONTAINER}
+
+    db:
+        image: mariadb
+        restart: always
+        environment: 
+            MYSQL_ROOT_PASSWORD: obj17Dezmond
+        volumes: 
+            - ${DB_PATH_HOST}:/var/lib/mysql
+    adminer:
+        image: adminer
+        restart: always
+        ports: 
+            - 8085:8080
