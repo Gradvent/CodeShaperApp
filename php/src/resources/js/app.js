@@ -13,3 +13,9 @@ require('./bootstrap');
  */
 
 require('./components/Example');
+
+/**
+ * Import React pages
+ */
+
+require('./pages/HomePage');
