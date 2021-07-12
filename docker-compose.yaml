@@ -20,6 +20,7 @@ services:
         build: ./web
         environment: 
             - APACHE_RUN_USER=#1000
+            - DB_HOST=db
         volumes: 
             - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
         ports: 
@@ -27,12 +28,6 @@ services:
         working_dir: ${APP_PATH_CONTAINER}
         networks: 
             - localnet
-    composer:
-        image: composer
-        volumes: 
-            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
-        working_dir: ${APP_PATH_CONTAINER}
-        command: composer install
     nodejs:
         build: 
             context: ./web
@@ -50,8 +45,6 @@ services:
     db:
         image: mariadb
         restart: always
-        environment: 
-            MYSQL_ROOT_PASSWORD: obj17Dezmond
         volumes: 
             - ${DB_PATH_HOST}:/var/lib/mysql
         networks: 
