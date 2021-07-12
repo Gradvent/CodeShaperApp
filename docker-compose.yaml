@@ -54,8 +54,12 @@ services:
             MYSQL_ROOT_PASSWORD: obj17Dezmond
         volumes: 
             - ${DB_PATH_HOST}:/var/lib/mysql
+        networks: 
+            - localnet
     adminer:
         image: adminer
         restart: always
         ports: 
             - 8085:8080
+        networks: 
+            - localnet
