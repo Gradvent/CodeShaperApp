@@ -9,4 +9,4 @@ VOLUME ${TARGET_PATH}
 WORKDIR ${TARGET_PATH}
 
 CMD npm install \
-    && npm run watch
+    && npm run dev
