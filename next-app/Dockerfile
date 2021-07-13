@@ -1,6 +1,6 @@
 FROM node:lts
 
-ARG TARGET_PATH=/var/www/html
+ARG TARGET_PATH=/var/www
 
 # RUN mkdir ${TARGET_PATH}
 

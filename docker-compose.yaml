@@ -1,11 +1,9 @@
 version: "3.8"
 
-networks: 
-    localnet:
-
-
 services: 
     nginx:
+        depends_on: 
+            - nodejs
         image: nginx
         volumes: 
             - ./web/nginx/conf/:/etc/nginx/conf.d/
@@ -14,36 +12,37 @@ services:
         environment: 
             - NGINX_HOST=codeshaper.local
             - NGINX_PORT=80
-        networks: 
-            - localnet
     web:
-        build: ./web
+        depends_on: 
+            - db
+        build: ./laravel/
+        container_name: laravel-backend
+        image: laravel-service
         environment: 
-            # - APACHE_RUN_USER=www-data
+            # - APACHE_RUN_USER=0
             - DB_HOST=db
             - DB_PASSWORD=${DB_PASSWORD}
             - DB_DATABASE=${APP_DATABASE}
         volumes: 
-            - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
+            - ${BACK_PATH_HOST}:${APP_PATH_CONTAINER}
         ports: 
             - 8081:80
         working_dir: ${APP_PATH_CONTAINER}
-        networks: 
-            - localnet
     nodejs:
+        depends_on: 
+            - web
         build: 
-            context: ./web
-            dockerfile: Node.Dockerfile
+            context: ./next-app/
+            dockerfile: Dockerfile
             args: 
                 TARGET_PATH: ${APP_PATH_CONTAINER}
+        image: next-service
+        container_name: next-frontend
         volumes: 
             - ${FRONT_PATH_HOST}:${APP_PATH_CONTAINER}
         working_dir: ${APP_PATH_CONTAINER}
         ports: 
             - 8082:3000
-        networks: 
-            - localnet
-
     db:
         image: mariadb
         restart: always
@@ -52,12 +51,10 @@ services:
             MYSQL_DATABASE: ${APP_DATABASE}
         volumes: 
             - ${DB_PATH_HOST}:/var/lib/mysql
-        networks: 
-            - localnet
     adminer:
+        depends_on: 
+            - db
         image: adminer
         restart: always
         ports: 
             - 8085:8080
-        networks: 
-            - localnet

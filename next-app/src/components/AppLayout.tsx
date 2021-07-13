@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, AppBar, Toolbar, Typography, Button, IconButton, Icon, makeStyles } from '@material-ui/core';
+import Link from 'next/link'
 
 export interface AppLayoutProps {
   title?: string
@@ -36,14 +37,11 @@ export default function AppLayout({ title = "CodeShaper", user, children}: AppLa
             >
               {title}
             </Typography>
-            {user ? <div>User</div> : <React.Fragment>
+            {user ? <div>User</div> : <Link href="/sign">
               <Button className={classes.toolbarButton} color="inherit">
-                Вход
+                Вход и регистрация
               </Button>
-              <Button className={classes.toolbarButton} color="inherit">
-                Регистрация
-              </Button>
-            </React.Fragment>}
+            </Link>}
           </Toolbar>
         </Container>
       </AppBar>
