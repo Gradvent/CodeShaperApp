@@ -19,8 +19,10 @@ services:
     web:
         build: ./web
         environment: 
-            - APACHE_RUN_USER=#1000
+            # - APACHE_RUN_USER=www-data
             - DB_HOST=db
+            - DB_PASSWORD=${DB_PASSWORD}
+            - DB_DATABASE=${APP_DATABASE}
         volumes: 
             - ${APP_PATH_HOST}:${APP_PATH_CONTAINER}
         ports: 
@@ -45,6 +47,9 @@ services:
     db:
         image: mariadb
         restart: always
+        environment: 
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+            MYSQL_DATABASE: ${APP_DATABASE}
         volumes: 
             - ${DB_PATH_HOST}:/var/lib/mysql
         networks: 
