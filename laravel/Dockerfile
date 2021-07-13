@@ -12,4 +12,4 @@ RUN apt-get update && apt-get install -y mariadb-client
 # CMD composer install \
 #     && apache2-foreground
 CMD composer install \
-    && php artisan serve --port=80
+    && php artisan serve --host="0.0.0.0" --port=80
