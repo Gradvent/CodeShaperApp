@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function AppLayout({ title = "CodeShaper", user, children}: AppLayoutProps) {
+export default function AppLayout({ title = "CodeShaper", user, children }: AppLayoutProps) {
   const classes = useStyles()
   return (
     <Container className={classes.root}>
@@ -37,11 +37,19 @@ export default function AppLayout({ title = "CodeShaper", user, children}: AppLa
             >
               {title}
             </Typography>
-            {user ? <div>User</div> : <Link href="/sign">
-              <Button className={classes.toolbarButton} color="inherit">
-                Вход и регистрация
-              </Button>
-            </Link>}
+            {user ? <div>User</div> : <React.Fragment>
+              <Link href="/login">
+                <Button className={classes.toolbarButton} color="inherit">
+                  Вход
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button className={classes.toolbarButton} color="inherit">
+                  Регистрация
+                </Button>
+              </Link>
+            </React.Fragment>
+            }
           </Toolbar>
         </Container>
       </AppBar>

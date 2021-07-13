@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PastaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::get("/last-pasta", function (Request $request) {
     return ["pasta"=>"10"];
 });
+
+Route::resource('pasta', PastaController::class);
