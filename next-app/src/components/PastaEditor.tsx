@@ -1,11 +1,10 @@
 import { Card, Button, Typography, TextField, MenuItem,
     makeStyles, Grid, FormControl, InputLabel, Select } from "@material-ui/core"
-import hljs from 'highlight.js'
 import React from "react"
 import { useState } from "react"
-import { useEffect } from "react"
 import CodeViewer from "./CodeViewer"
 import axios from 'axios'
+import { useRouter } from "next/router"
 
 const useStyles = makeStyles((theme) => ({
     footer: {
@@ -24,8 +23,8 @@ export default function PastaEditor() {
     const [lang, setLang] = useState("plaintext")
     const [loading, setLoad] = useState(false)
     const [access, setAccess] = useState<AccessType>('public')
-    const [slink, setSlink] = useState('')
     const classes = useStyles()
+    const router = useRouter()
 
     const send = async () => {
         const pre_request = await axios.get('sanctum/csrf-cookie')
@@ -37,11 +36,7 @@ export default function PastaEditor() {
             access,
         })
         const json = result.data
-        if (json.data.access != 'private') {
-            const l = new URL(`/pasta/${json.data.id}`, document.baseURI)
-            setSlink(()=>l.href)
-        } else setSlink('')
-        console.log(json)
+        router.push(`/pasta/${json.data.short}`)
         setLoad(false)
     }
 
@@ -91,11 +86,6 @@ export default function PastaEditor() {
                             Отправить
                         </Button>
                     </Grid>
-                    {!!slink && <Grid item xs={12}>
-                        <TextField fullWidth label="Ссылка на пасту">
-                            {slink}
-                        </TextField>
-                    </Grid>}
                 </Grid>
             </div>
         </Card>

@@ -1,4 +1,4 @@
-import { Card, CardHeader, Typography, CardContent, LinearProgress } from "@material-ui/core"
+import { Card, CardHeader, Typography, TextField, LinearProgress } from "@material-ui/core"
 import React from "react"
 import { useEffect } from "react"
 import { makeStyles } from '@material-ui/styles'
@@ -28,7 +28,7 @@ interface BackendMassage {
 
 const useStyles = makeStyles((theme) => ({
     footer: {
-        padding: "0px 16px 8px 16px" 
+        padding: "0px 16px 8px 16px"
     }
 }))
 
@@ -36,26 +36,40 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Pasta(props: PastaProps) {
     const [loading, setLoad] = useState(false)
-    const [data, setData] = useState<PastaData|undefined>(undefined)
-    useEffect(()=>{
+    const [shortLink, setShortLink] = useState('')
+    const [data, setData] = useState<PastaData | undefined>(undefined)
+    useEffect(() => {
         setLoad(true)
-        
-        const http_client = axios.create({baseURL: window.origin})
+
+        const http_client = axios.create({ baseURL: window.origin })
         http_client.get('sanctum/csrf-cookie').then((pre_) => {
-            http_client.get<BackendMassage>(`/api/pasta/${props.short}`).then((res)=>{
+            http_client.get<BackendMassage>(`/api/pasta/${props.short}`).then((res) => {
                 setData(res.data.data)
-            }).finally(()=>setLoad(false))
+                setShortLink(new URL(`/pasta/${res.data.data.short}`, window.origin).href)
+            }).finally(() => setLoad(false))
         })
     }, [props.short])
     const classes = useStyles()
+    const selectLink: React.FocusEventHandler<HTMLTextAreaElement> = (e) => {
+        e.target.select()
+    }
     return (
         <Card>
             {loading && <LinearProgress />}
             <CardHeader title={data?.title ?? "Без названия"}
-                subheader={data?.lang ?? "plaintext"}/>
-            <CodeViewer lang={data?.lang ?? "plaintext"}>{data?.textcode ?? ""}</CodeViewer>
-            <div className={classes.footer}><Typography>{data?.user_id ? <a href={`/user/${data.user_id}`}>Автор</a> : "Гость"} в {data?.created_at}</Typography></div>
+                subheader={data?.lang ?? "plaintext"} />
+            <CodeViewer lang={data?.lang ?? "plaintext"}>
+                {data?.textcode ?? ""}
+            </CodeViewer>
+            <div className={classes.footer}>
+                <Typography>
+                    {data?.user_id ?
+                        <a href={`/user/${data.user_id}`}>Автор</a> :
+                        "Гость"} в {data?.created_at}
+                </Typography>
+                <TextField fullWidth onFocus={selectLink} label="Ссылка на пасту" value={shortLink}/>
+            </div>
         </Card>
-        
+
     )
 }
