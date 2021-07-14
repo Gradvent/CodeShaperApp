@@ -1,16 +1,29 @@
-import { Card, CardHeader, Typography, CardContent } from "@material-ui/core"
-import hljs from 'highlight.js'
+import { Card, CardHeader, Typography, CardContent, LinearProgress } from "@material-ui/core"
 import React from "react"
 import { useEffect } from "react"
 import { makeStyles } from '@material-ui/styles'
 import CodeViewer from "./CodeViewer"
+import axios from "axios"
+import { useState } from "react"
 
+export interface PastaData {
+    id: number,
+    created_at: string
+    user_id: number
+    title: string
+    textcode: string
+    lang: string
+    access: string
+    short: string
+}
 export interface PastaProps {
-    title?: string
-    lang?: string
-    children?: any
-    user?: string,
-    datetime?: string 
+    short: string
+}
+
+interface BackendMassage {
+    success: boolean
+    data: PastaData
+    message: string
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -19,17 +32,29 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
+
+
 export default function Pasta(props: PastaProps) {
-    const {title="Без названия", 
-        children, lang="plaintext",
-        datetime=new Date().toLocaleString()} = props
+    const [loading, setLoad] = useState(false)
+    const [data, setData] = useState<PastaData|undefined>(undefined)
+    useEffect(()=>{
+        setLoad(true)
+        
+        const http_client = axios.create({baseURL: window.origin})
+        http_client.get('sanctum/csrf-cookie').then((pre_) => {
+            http_client.get<BackendMassage>(`/api/pasta/${props.short}`).then((res)=>{
+                setData(res.data.data)
+            }).finally(()=>setLoad(false))
+        })
+    }, [props.short])
     const classes = useStyles()
     return (
-        <Card title={title}>
-            <CardHeader title={title}
-                subheader={lang ?? "text"}/>
-            <CodeViewer lang={lang}>{children}</CodeViewer>
-            <div className={classes.footer}><Typography>{props.user ? <a href={`/user/${props.user}`}>{props.user}</a> : "Гость"} в {datetime}</Typography></div>
+        <Card>
+            {loading && <LinearProgress />}
+            <CardHeader title={data?.title ?? "Без названия"}
+                subheader={data?.lang ?? "plaintext"}/>
+            <CodeViewer lang={data?.lang ?? "plaintext"}>{data?.textcode ?? ""}</CodeViewer>
+            <div className={classes.footer}><Typography>{data?.user_id ? <a href={`/user/${data.user_id}`}>Автор</a> : "Гость"} в {data?.created_at}</Typography></div>
         </Card>
         
     )

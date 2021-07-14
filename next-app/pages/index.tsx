@@ -37,7 +37,7 @@ export default function Home() {
           <PastaEditor />
         </Grid>
         <Grid item xs={12} md={4}>
-          <PastaList title="Последние публичные" list={list}/>
+          <PastaList title="Последние публичные"/>
         </Grid>
       </Grid>
     </AppLayout>

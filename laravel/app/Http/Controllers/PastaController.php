@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Pasta;
-use DateTime;
+use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
-class PastaController extends Controller
+class PastaController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -16,18 +16,9 @@ class PastaController extends Controller
      */
     public function index()
     {
-        $last = DB::table('pastas')->orderBy('created_at')->limit(10)->get();
-        return ["last"=>$last];
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $pastas = Pasta::lastPublic10()->toArray();
+        // $pastas = Pasta::all();
+        return $this->sendResponse($pastas, 'Pasta last retrieved successfully.');
     }
 
     /**
@@ -38,60 +29,67 @@ class PastaController extends Controller
      */
     public function store(Request $request)
     {
-        $now = new DateTime();
-        $params = [
-            'created_at'=>$now->getTimestamp(),
-            'title'=>$request->json('title'),
-            'textcode'=>$request->json('textcode'),
-            'lang'=>$request->json('lang'),
-            'closed_at'=>$request->json('closed_at'),
-            'access'=>$request->json('access'),
-        ];
-        DB::table('pastas')->insert($params);
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'title' => 'required',
+            'textcode' => 'required',
+            'access' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return $this->sendError("Validation error", $validator->errors());
+        }
+
+        $pasta = Pasta::create($input);
+        return $this->sendResponse($pasta->toArray(), 'Pasta created');
+
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Pasta  $pasta
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Pasta $pasta)
+    public function show($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Pasta  $pasta
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Pasta $pasta)
-    {
-        //
+        $q = Pasta::all()->whereIn('access', ['public', 'unlisted'])->where('short',$id)->first();
+        if (!is_null($q)) 
+            return $this->sendResponse($q, 'Success');
+        return $this->sendError('Pasta not found');
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Pasta  $pasta
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Pasta $pasta)
     {
-        //
+        $input = $request->all();
+        $validator = Validator::make($input, [
+            'title' => 'required',
+            'textcode' => 'required',
+            'access' => 'required',
+        ]);
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+        $pasta->update($input);
+        $pasta->save();
+        return $this->sendResponse($pasta, 'Pasta updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Pasta  $pasta
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function destroy(Pasta $pasta)
     {
-        //
+        $pasta->delete();
+        return $this->sendResponse($pasta->toArray(), 'Pasta deleted successfully.');
     }
 }

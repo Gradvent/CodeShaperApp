@@ -23,4 +23,6 @@ Route::get("/last-pasta", function (Request $request) {
     return ["pasta"=>"10"];
 });
 
-Route::resource('pasta', PastaController::class);
+Route::apiResources([
+    'pasta' => PastaController::class,
+]);

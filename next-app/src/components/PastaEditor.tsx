@@ -1,9 +1,11 @@
-import { Card, Button, Typography, CardContent, TextField, makeStyles, Grid } from "@material-ui/core"
+import { Card, Button, Typography, TextField, MenuItem,
+    makeStyles, Grid, FormControl, InputLabel, Select } from "@material-ui/core"
 import hljs from 'highlight.js'
 import React from "react"
 import { useState } from "react"
 import { useEffect } from "react"
 import CodeViewer from "./CodeViewer"
+import axios from 'axios'
 
 const useStyles = makeStyles((theme) => ({
     footer: {
@@ -14,27 +16,37 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
+type AccessType = 'public'|'unlisted'|'private'
+
 export default function PastaEditor() {
     const [title, setTitle] = useState("Без названия")
     const [code, setCode] = useState("")
     const [lang, setLang] = useState("plaintext")
     const [loading, setLoad] = useState(false)
+    const [access, setAccess] = useState<AccessType>('public')
+    const [slink, setSlink] = useState('')
     const classes = useStyles()
 
     const send = async () => {
-        const pre_request = await fetch('sanctum/csrf-cookie')
-        if (!pre_request.ok) return
+        const pre_request = await axios.get('sanctum/csrf-cookie')
         setLoad(true)
-        const result = await fetch('/api/pasta', {
-            method: "POST",
-            credentials: "same-origin",
-            body: JSON.stringify({
-                title, 
-                lang,
-                textcode:code
-            })
+        const result = await axios.post('/api/pasta', {
+            title,
+            lang,
+            textcode: code,
+            access,
         })
+        const json = result.data
+        if (json.data.access != 'private') {
+            const l = new URL(`/pasta/${json.data.id}`, document.baseURI)
+            setSlink(()=>l.href)
+        } else setSlink('')
+        console.log(json)
         setLoad(false)
+    }
+
+    const accessChange = (event: any) => {
+        setAccess(event.target.value)
     }
 
     return (
@@ -46,9 +58,24 @@ export default function PastaEditor() {
                             onChange={(e) => setTitle(e.target.value)}
                             value={title} />
                     </Grid>
-                    <Grid item xs={12}>
-                        <TextField value={lang} onChange={(e) => setLang(e.target.value)}
+                    <Grid item xs={6}>
+                        <TextField fullWidth value={lang} onChange={(e) => setLang(e.target.value)}
                             label="Lang" />
+                    </Grid>
+                    <Grid item xs={6}>
+                        <FormControl fullWidth>
+                            <InputLabel id="access-select-label">Доступ</InputLabel>
+                            <Select
+                                labelId="access-select-label"
+                                id="access-select"
+                                value={access}
+                                onChange={accessChange}
+                            >
+                                <MenuItem value='public'>Публичный</MenuItem>
+                                <MenuItem value='unlisted'>По ссылке</MenuItem>
+                                <MenuItem value='private'>Приватный</MenuItem>
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid item xs={12}>
                         <TextField variant="outlined" multiline fullWidth label="Code"
@@ -60,10 +87,15 @@ export default function PastaEditor() {
                         <CodeViewer lang={lang}>{code}</CodeViewer>
                     </Grid>
                     <Grid item xs={12}>
-                        <Button disabled={loading} onClick={()=>send()}>
+                        <Button disabled={loading} onClick={() => send()}>
                             Отправить
                         </Button>
                     </Grid>
+                    {!!slink && <Grid item xs={12}>
+                        <TextField fullWidth label="Ссылка на пасту">
+                            {slink}
+                        </TextField>
+                    </Grid>}
                 </Grid>
             </div>
         </Card>

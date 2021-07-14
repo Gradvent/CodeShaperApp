@@ -30,13 +30,16 @@ export default function AppLayout({ title = "CodeShaper", user, children }: AppL
       <AppBar position="absolute">
         <Container maxWidth="md">
           <Toolbar>
-            <Typography
-              className={classes.title}
-              component="h2"
-              variant="h5"
-            >
-              {title}
-            </Typography>
+            <Link href="/">
+              <Typography
+                className={classes.title}
+                component="h2"
+                variant="h5"
+              >
+                {title}
+              </Typography>
+            </Link>
+
             {user ? <div>User</div> : <React.Fragment>
               <Link href="/login">
                 <Button className={classes.toolbarButton} color="inherit">

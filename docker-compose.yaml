@@ -16,8 +16,6 @@ services:
         depends_on: 
             - db
         build: ./laravel/
-        container_name: laravel-backend
-        image: laravel-service
         environment: 
             # - APACHE_RUN_USER=0
             - DB_HOST=db
@@ -36,8 +34,6 @@ services:
             dockerfile: Dockerfile
             args: 
                 TARGET_PATH: ${APP_PATH_CONTAINER}
-        image: next-service
-        container_name: next-frontend
         volumes: 
             - ${FRONT_PATH_HOST}:${APP_PATH_CONTAINER}
         working_dir: ${APP_PATH_CONTAINER}
