@@ -26,4 +26,5 @@ RUN docker-php-ext-install \
 # CMD composer install \
 #     && apache2-foreground
 CMD composer install \
+    && php artisan migrate \
     && php artisan serve --host="0.0.0.0" --port=80

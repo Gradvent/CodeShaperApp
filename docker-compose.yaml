@@ -17,6 +17,7 @@ services:
         depends_on: 
             - db
         build: ./laravel/
+        restart: always
         environment: 
             # - APACHE_RUN_USER=0
             - DB_HOST=db
