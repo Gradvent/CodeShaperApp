@@ -16,7 +16,7 @@ class PastaController extends BaseController
      */
     public function index()
     {
-        $pastas = Pasta::lastPublic10()->toArray();
+        $pastas = array_values(Pasta::lastPublic10()->all());
         // $pastas = Pasta::all();
         return $this->sendResponse($pastas, 'Pasta last retrieved successfully.');
     }
