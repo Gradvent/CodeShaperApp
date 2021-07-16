@@ -1,6 +1,7 @@
 import React from 'react';
-import { Container, AppBar, Toolbar, Typography, Button, IconButton, Icon, makeStyles } from '@material-ui/core';
+import { Container, AppBar, Toolbar, Typography, Button, IconButton, Icon, makeStyles, Menu, MenuItem } from '@material-ui/core';
 import Link from 'next/link'
+import { UserContext } from '../user';
 
 export interface AppLayoutProps {
   title?: string
@@ -23,6 +24,53 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
+function UserMenuActions() {
+  const classes = useStyles()
+
+  const [anchorEl, setAnchorEl] = React.useState<Element|null>(null);
+
+  const handleClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <UserContext.Consumer>
+      {(user) => (!user ? <React.Fragment>
+        <Link href="/login">
+          <Button className={classes.toolbarButton} color="inherit">
+            Вход
+          </Button>
+        </Link>
+        <Link href="/register">
+          <Button className={classes.toolbarButton} color="inherit">
+            Регистрация
+          </Button>
+        </Link>
+      </React.Fragment> :
+        <React.Fragment>
+          <Button aria-controls="user-menu" aria-haspopup="true" onClick={handleClick}>
+            {user.name}
+          </Button>
+          <Menu
+            id="user-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={handleClose}>Моя паста</MenuItem>
+            <MenuItem onClick={handleClose}>Logout</MenuItem>
+          </Menu>
+        </React.Fragment>
+      )}
+    </UserContext.Consumer>
+  )
+}
+
 export default function AppLayout({ title = "CodeShaper", user, children }: AppLayoutProps) {
   const classes = useStyles()
   return (
@@ -39,20 +87,7 @@ export default function AppLayout({ title = "CodeShaper", user, children }: AppL
                 {title}
               </Typography>
             </Link>
-
-            {user ? <div>User</div> : <React.Fragment>
-              <Link href="/login">
-                <Button className={classes.toolbarButton} color="inherit">
-                  Вход
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className={classes.toolbarButton} color="inherit">
-                  Регистрация
-                </Button>
-              </Link>
-            </React.Fragment>
-            }
+            <UserMenuActions />
           </Toolbar>
         </Container>
       </AppBar>
