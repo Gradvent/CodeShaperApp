@@ -11,7 +11,7 @@ CodeShaper is application for shape your text or code to your friends and collea
 ## Russian description
 Описание на русском языке
 
-Приложение CodeShaper поможет Вам поделлиться кодом или текстом с друзьями или коллегами
+Приложение CodeShaper поможет Вам поделиться кодом или текстом с друзьями или коллегами
 
 > Работает на Docker  
 > Создан Gradvent
@@ -23,7 +23,7 @@ CodeShaper is application for shape your text or code to your friends and collea
 ```
 docker-compose up --build
 ```
-http://localhost:8080 - Home page
+http://localhost:80 - Home page
 
 ## Stop and removed
 
