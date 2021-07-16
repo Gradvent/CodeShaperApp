@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 use function PHPUnit\Framework\isNull;
 
@@ -72,6 +73,19 @@ class Pasta extends Model
 
     public static function lastPublic10() {
         return static::actives()->where(static::C_ACCESS, static::E_ACCESS_PUBLIC)->sortByDesc(static::CREATED_AT)->slice(0, 10);
+    }
+
+    public static function myPasta()
+    {
+        $user = Auth::user();
+        if (is_null($user)) return null;
+        return static::actives()->where(static::C_USER_ID, $user->id);
+    }
+    
+    public static function lastMy10() {
+        $my = static::myPasta();
+        if (is_null($my)) return null;
+        return $my->sortByDesc(static::CREATED_AT)->slice(0, 10);
     }
 
     protected $appends = [Pasta::V_SHORT];
