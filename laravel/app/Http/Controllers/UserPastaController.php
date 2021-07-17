@@ -44,8 +44,10 @@ class UserPastaController extends BaseController
         if (is_null($q)) 
             return $this->sendError('Pasta not found');
         $pages = intdiv($q->count(),static::COUNT_IN_PAGE)+1;
-        $q = $q->sortByDesc(Pasta::CREATED_AT)
-            ->slice(($page-1)*static::COUNT_IN_PAGE, static::COUNT_IN_PAGE);
+        $q = array_values(
+            $q->sortByDesc(Pasta::CREATED_AT)
+            ->slice(($page-1)*static::COUNT_IN_PAGE, static::COUNT_IN_PAGE)->all()
+        );
 
         return $this->sendPaginatedResponse($q, $page, $pages, 'Success');
     }

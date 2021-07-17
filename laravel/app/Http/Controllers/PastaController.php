@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Pasta;
 use App\Models\User;
+use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PastaController extends BaseController
@@ -38,7 +41,30 @@ class PastaController extends BaseController
         if ($validator->fails()) {
             return $this->sendError("Validation error", $validator->errors());
         }
-
+        if (key_exists('exp', $input)) {
+            $closedAt = Carbon::now();
+            [$expNum, $expType] = explode(' ', $input['exp'], 2);
+            $expNum = (int) $expNum;
+            switch ($expType) {
+                case 'm':
+                    $closedAt = $closedAt->addMinutes($expNum);
+                    break;
+                case 'H':
+                    $closedAt = $closedAt->addHours($expNum);
+                    break;
+                case 'D':
+                    $closedAt = $closedAt->addDays($expNum);
+                    break;
+                case 'W':
+                    $closedAt = $closedAt->addWeeks($expNum);
+                    break;
+                case 'M':
+                    $closedAt = $closedAt->addMonths($expNum);
+                    break;
+            }
+            $input[Pasta::C_CLOSED_AT] = $closedAt;
+            unset($input['exp']);
+        }
         $pasta = Pasta::create($input);
         return $this->sendResponse($pasta->toArray(), 'Pasta created');
 
@@ -52,7 +78,10 @@ class PastaController extends BaseController
      */
     public function show($id)
     {
-        $q = Pasta::all()->whereIn('access', ['public', 'unlisted'])->where('short',$id)->first();
+        if (Auth::user())
+            $q = Pasta::actives()->where('short',$id)->first();
+        else
+            $q = Pasta::actives()->whereIn('access', ['public', 'unlisted'])->where('short',$id)->first();
         if (!is_null($q)) 
             return $this->sendResponse($q, 'Success');
         return $this->sendError('Pasta not found');

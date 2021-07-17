@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return json_decode($request->user());
+    return $request->user();
 });
 
 // Route for user's pastas //
