@@ -6,25 +6,20 @@ import PastaEditor from '../src/components/PastaEditor';
 import { Grid } from '@material-ui/core';
 import PastaList, { PastaItem } from '../src/components/PastaList';
 import Head from 'next/head';
+import { fetchMyLast10Pasta, fetchPublicLast10Pasta } from '../src/api_client';
 
-const list: PastaItem[] = [
-  {
-    title: "Hello world from Python",
-    lang: "python",
-    user: "",
-    datetime: new Date().toLocaleString(),
-    shortLink: "/pasta/9362984"
-  },
-  {
-    title: "Hello world from Python 2",
-    lang: "python",
-    user: "",
-    datetime: new Date().toLocaleString(),
-    shortLink: "/pasta/9362985"
-  },
-]
 
 export default function Home() {
+  const [publicList, setPublicList] = React.useState<PastaItem[]>([])
+  const [myList, setMyList] = React.useState<PastaItem[]>([])
+  const [myListMessage, setMyListMessage] = React.useState('')
+  React.useEffect(()=>{
+    fetchPublicLast10Pasta().then(setPublicList)
+    fetchMyLast10Pasta().then((data)=>{
+      if (data) setMyList(data)
+      else setMyListMessage("Для просмотра нужна авторизация")
+    })
+  }, [])
   return (
     <AppLayout>
       <Head>
@@ -37,7 +32,11 @@ export default function Home() {
           <PastaEditor />
         </Grid>
         <Grid item xs={12} md={4}>
-          <PastaList title="Последние публичные"/>
+          <PastaList list={publicList} title="Последние публичные"/>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          {!!myList.length && 
+            <PastaList list={myList} title="Ваша паста"/>}
         </Grid>
       </Grid>
     </AppLayout>

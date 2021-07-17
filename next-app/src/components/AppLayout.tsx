@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 function UserMenuActions() {
   const classes = useStyles()
 
-  const [anchorEl, setAnchorEl] = React.useState<Element|null>(null);
+  const [anchorEl, setAnchorEl] = React.useState<Element | null>(null);
 
   const handleClick: React.MouseEventHandler<HTMLButtonElement> = (event) => {
     setAnchorEl(event.currentTarget);
@@ -52,6 +52,12 @@ function UserMenuActions() {
         </Link>
       </React.Fragment> :
         <React.Fragment>
+          <Link href="/my-pasta/1">
+            <Button>
+              Моя паста
+            </Button>
+          </Link>
+
           <Button aria-controls="user-menu" aria-haspopup="true" onClick={handleClick}>
             {user.name}
           </Button>

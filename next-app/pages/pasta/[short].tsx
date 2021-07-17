@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import 'highlight.js/styles/default.css'
 import AppLayout from '../../src/components/AppLayout';
-import Pasta from '../../src/components/Pasta';
+import Pasta, { PastaData } from '../../src/components/Pasta';
 import { Grid } from '@material-ui/core';
 import PastaList, { PastaItem } from '../../src/components/PastaList';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { fetchMyLast10Pasta, fetchPublicLast10Pasta } from '../../src/api_client';
 
 
 export default function PastaPage() {
+  const [publicList, setPublicList] = useState<PastaItem[]>([])
+  const [myList, setMyList] = useState<PastaItem[]>([])
+  useEffect(()=>{
+    fetchPublicLast10Pasta().then(setPublicList)
+    fetchMyLast10Pasta().then((data)=>{
+      if (data) setMyList(data)
+      else setMyList([])
+    })
+  }, [])
   const router = useRouter()
   const { short:q_short } = router.query
   let short = ""
@@ -28,8 +38,11 @@ export default function PastaPage() {
           <Pasta short={short}/>
         </Grid>
         <Grid item xs={12} md={4}>
-          <PastaList title="Последние публичные"/>
+          <PastaList list={publicList} title="Последние публичные"/>
         </Grid>
+        {!!myList.length && <Grid item xs={12} md={4}>
+          <PastaList list={myList} title="Ваша паста"/>
+        </Grid>}
       </Grid>
     </AppLayout>
   )

@@ -8,6 +8,7 @@ import { UserContext, UserData } from '../src/user'
 import { useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/router'
+import { useApiClient } from '../src/api_client'
 
 function MyApp({ Component, pageProps }: AppProps) {
   React.useEffect(() => {
@@ -17,21 +18,21 @@ function MyApp({ Component, pageProps }: AppProps) {
   const router = useRouter()
   const [user, setUser] = useState<UserData>(undefined)
   const fetchUser = (redirect = false) => {
-    const http_client = axios.create({ baseURL: window.origin })
+    const [apiClient, fetchApi] = useApiClient()
     const logout = () => {
-      http_client.get('sanctum/csrf-cookie').then((pre_) => {
-        http_client.post('/logout').then((res) => {
+      fetchApi.then((pre_) => {
+        apiClient.post('/logout').then((res) => {
           setUser(undefined)
           router.push('/')
-        })
-      }).catch(() => setUser(undefined))
+        }).catch(() => setUser(undefined))
+      })
     }
-    http_client.get('sanctum/csrf-cookie').then((pre_) => {
-      http_client.get('/api/user').then((res) => {
+    fetchApi.then((pre_) => {
+      apiClient.get('/api/user').then((res) => {
         setUser({ logged: true, logout, ...res.data })
         if (redirect) router.push('/')
-      })
-    }).catch(() => setUser(undefined))
+      }).catch(() => setUser(undefined))
+    })
   }
   React.useEffect(() => {
     if (!!user) return
